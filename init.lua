@@ -93,6 +93,13 @@ vim.g.maplocalleader = ' '
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
 
+-- Set gohtml templates as Go templates for syntax highlighting
+vim.filetype.add {
+  extension = {
+    gohtml = 'gotmpl',
+  },
+}
+
 -- [[ Setting options ]]
 -- See `:help vim.opt`
 -- NOTE: You can change these options as you wish!
@@ -572,7 +579,14 @@ require('lazy').setup({
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
         -- clangd = {},
-        gopls = {},
+        gopls = {
+          filetypes = { 'go', 'gomod', 'gowork', 'gotmpl', 'gohtml' },
+          settings = {
+            gopls = {
+              templateExtensions = { 'tmpl', 'gotmpl', 'tpl', 'gohtml' },
+            },
+          },
+        },
         -- pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
