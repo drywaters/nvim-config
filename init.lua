@@ -234,7 +234,8 @@ require('lazy').setup({
     branch = '0.1.x',
     dependencies = {
       'nvim-lua/plenary.nvim',
-      'debugloop/telescope-undo.nvim',
+      -- If using with WSL use drywaters branch so it doesn't disable delta
+      'drywaters/telescope-undo.nvim',
       { -- If encountering errors, see telescope-fzf-native README for installation instructions
         'nvim-telescope/telescope-fzf-native.nvim',
 
@@ -289,7 +290,14 @@ require('lazy').setup({
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
           },
-          undo = {},
+          undo = {
+            use_delta = true,
+            side_by_side = true,
+            layout_strategy = 'vertical',
+            layout_config = {
+              preview_height = 0.7,
+            },
+          },
         },
       }
 
