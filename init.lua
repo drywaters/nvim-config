@@ -72,7 +72,7 @@ vim.opt.scrolloff = 10
 -- Set gohtml templates as Go templates for syntax highlighting
 vim.filetype.add {
   extension = {
-    gohtml = 'gotmpl',
+    gohtml = 'gohtmltmpl',
   },
 }
 
@@ -503,7 +503,7 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         gopls = {
-          filetypes = { 'go', 'gomod', 'gowork', 'gotmpl', 'gohtml' },
+          filetypes = { 'go', 'gomod', 'gowork', 'gotmpl', 'gohtmltmpl' },
           settings = {
             gopls = {
               templateExtensions = { 'tmpl', 'gotmpl', 'tpl', 'gohtml' },
@@ -520,6 +520,24 @@ require('lazy').setup({
         --
         -- But for many setups, the LSP (`tsserver`) will work just fine
         tsserver = {},
+        emmet_ls = {
+          filetypes = {
+            'gohtmltmpl',
+            'css',
+            'eruby',
+            'html',
+            'javascript',
+            'javascriptreact',
+            'less',
+            'sass',
+            'scss',
+            'svelte',
+            'pug',
+            'typescriptreact',
+            'vue',
+          },
+        },
+        tailwindcss = {},
 
         lua_ls = {
           -- cmd = {...},
@@ -798,6 +816,7 @@ require('lazy').setup({
       ---@diagnostic disable-next-line: missing-fields
       require('nvim-treesitter.configs').setup(opts)
 
+      vim.treesitter.language.register('html', 'gohtmltmpl')
       -- There are additional nvim-treesitter modules that you can use to interact
       -- with nvim-treesitter. You should go explore a few and see what interests you:
       --
