@@ -83,6 +83,9 @@ vim.filetype.add {
 vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
+-- Set shift space to space for lazy git commit issues
+vim.keymap.set('t', '<S-Space>', '<Space>')
+
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
@@ -235,7 +238,7 @@ require('lazy').setup({
     dependencies = {
       'nvim-lua/plenary.nvim',
       -- If using with WSL use drywaters branch so it doesn't disable delta
-      'drywaters/telescope-undo.nvim',
+      'debugloop/telescope-undo.nvim',
       { -- If encountering errors, see telescope-fzf-native README for installation instructions
         'nvim-telescope/telescope-fzf-native.nvim',
 
@@ -276,15 +279,32 @@ require('lazy').setup({
 
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
+      -- Function to allow opening a single file or multiple in tabs if any are selected
+      local select_one_or_multi = function(prompt_bufnr)
+        local picker = require('telescope.actions.state').get_current_picker(prompt_bufnr)
+        local multi = picker:get_multi_selection()
+        if not vim.tbl_isempty(multi) then
+          require('telescope.actions').close(prompt_bufnr)
+          for _, j in pairs(multi) do
+            if j.path ~= nil then
+              vim.cmd(string.format('%s %s', 'tabnew', j.path))
+            end
+          end
+        else
+          require('telescope.actions').select_default(prompt_bufnr)
+        end
+      end
+
       require('telescope').setup {
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+        defaults = {
+          mappings = {
+            -- i = { ['<c-enter>'] = 'to_fuzzy_refine' },
+            i = { ['<CR>'] = select_one_or_multi },
+          },
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
@@ -449,28 +469,28 @@ require('lazy').setup({
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
           local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client.server_capabilities.documentHighlightProvider then
-            local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
-            vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
-              buffer = event.buf,
-              group = highlight_augroup,
-              callback = vim.lsp.buf.document_highlight,
-            })
-
-            vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
-              buffer = event.buf,
-              group = highlight_augroup,
-              callback = vim.lsp.buf.clear_references,
-            })
-
-            vim.api.nvim_create_autocmd('LspDetach', {
-              group = vim.api.nvim_create_augroup('kickstart-lsp-detach', { clear = true }),
-              callback = function(event2)
-                vim.lsp.buf.clear_references()
-                vim.api.nvim_clear_autocmds { group = 'kickstart-lsp-highlight', buffer = event2.buf }
-              end,
-            })
-          end
+          -- if client and client.server_capabilities.documentHighlightProvider then
+          --   local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
+          --   vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
+          --     buffer = event.buf,
+          --     group = highlight_augroup,
+          --     callback = vim.lsp.buf.document_highlight,
+          --   })
+          --
+          --   vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
+          --     buffer = event.buf,
+          --     group = highlight_augroup,
+          --     callback = vim.lsp.buf.clear_references,
+          --   })
+          --
+          --   vim.api.nvim_create_autocmd('LspDetach', {
+          --     group = vim.api.nvim_create_augroup('kickstart-lsp-detach', { clear = true }),
+          --     callback = function(event2)
+          --       vim.lsp.buf.clear_references()
+          --       vim.api.nvim_clear_autocmds { group = 'kickstart-lsp-highlight', buffer = event2.buf }
+          --     end,
+          --   })
+          -- end
 
           -- The following autocommand is used to enable inlay hints in your
           -- code, if the language server you are using supports them
@@ -519,7 +539,8 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`tsserver`) will work just fine
-        tsserver = {},
+        -- tsserver = {},
+        vtsls = {},
         emmet_ls = {
           filetypes = {
             'gohtmltmpl',
@@ -734,24 +755,32 @@ require('lazy').setup({
     end,
   },
 
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+  -- { -- You can easily change to a different colorscheme.
+  -- Change the name of the colorscheme plugin below, and then
+  -- change the command in the config to whatever the name of that colorscheme is.
+  --
+  -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+  -- 'folke/tokyonight.nvim',
+  -- priority = 1000, -- Make sure to load this before all the other start plugins.
+  -- init = function()
+  --   -- Load the colorscheme here.
+  --   -- Like many other themes, this one has different styles, and you could load
+  --   -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
+  --   vim.cmd.colorscheme 'tokyonight-night'
+  --
+  --   -- You can configure highlights by doing something like:
+  --   vim.cmd.hi 'Comment gui=none'
+  -- end,
+  -- },
 
-      -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
+  {
+    'catppuccin/nvim',
+    name = 'catppuccin',
+    priority = 1000,
+    init = function()
+      vim.cmd.colorscheme 'catppuccin'
     end,
   },
-
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
