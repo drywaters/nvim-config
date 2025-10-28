@@ -1,16 +1,11 @@
 return {
   'CopilotC-Nvim/CopilotChat.nvim',
-  branch = 'canary',
+  branch = 'main',
   dependencies = {
     { 'github/copilot.vim' },
     { 'nvim-lua/plenary.nvim' },
   },
-  cmd = {
-    'CopilotChat',
-    'CopilotChatToggle',
-    'CopilotChatStop',
-    'CopilotChatExplain',
-  },
+  event = 'VeryLazy',
   enabled = function()
     local env_value = vim.env.COPILOT_ENABLED and vim.env.COPILOT_ENABLED:lower()
     local env_on = env_value == '1' or env_value == 'true'
