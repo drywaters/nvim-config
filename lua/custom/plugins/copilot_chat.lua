@@ -12,9 +12,8 @@ return {
     'CopilotChatExplain',
   },
   enabled = function()
-    local chat_env = vim.env.COPILOT_CHAT_ENABLED and vim.env.COPILOT_CHAT_ENABLED:lower()
-    local base_env = vim.env.COPILOT_ENABLED and vim.env.COPILOT_ENABLED:lower()
-    local env_on = chat_env == '1' or chat_env == 'true' or base_env == '1' or base_env == 'true'
+    local env_value = vim.env.COPILOT_ENABLED and vim.env.COPILOT_ENABLED:lower()
+    local env_on = env_value == '1' or env_value == 'true'
 
     if vim.g.enable_copilot_chat == false or vim.g.enable_copilot == false then
       return false
