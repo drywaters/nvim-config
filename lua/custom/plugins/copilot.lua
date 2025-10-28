@@ -11,11 +11,10 @@ return {
   end,
   config = function()
     local function toggle()
-      local status = vim.g.copilot_enabled
-      if status == nil or status == 0 then
-        vim.cmd 'Copilot enable'
-      else
+      if vim.g.copilot_enabled == 1 then
         vim.cmd 'Copilot disable'
+      else
+        vim.cmd 'Copilot enable'
       end
     end
 
