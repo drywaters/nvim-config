@@ -7,21 +7,12 @@ return {
   end,
   enabled = function()
     local env_value = vim.env.COPILOT_ENABLED and vim.env.COPILOT_ENABLED:lower()
-    local env_on = env_value == '1' or env_value == 'true'
-
-    if vim.g.enable_copilot == false then
-      return false
-    end
-
-    if not env_on then
-      return false
-    end
-
-    return true
+    return env_value == '1' or env_value == 'true'
   end,
   config = function()
     local function toggle()
-      if vim.g.copilot_enabled == 0 then
+      local status = vim.g.copilot_enabled
+      if status == nil or status == 0 then
         vim.cmd 'Copilot enable'
       else
         vim.cmd 'Copilot disable'
