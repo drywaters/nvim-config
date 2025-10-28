@@ -15,14 +15,7 @@ return {
     local env_value = vim.env.COPILOT_ENABLED and vim.env.COPILOT_ENABLED:lower()
     local env_on = env_value == '1' or env_value == 'true'
 
-    if vim.g.enable_copilot_chat == false or vim.g.enable_copilot == false then
-      return false
-    end
-
-    if not env_on then
-      return false
-    end
-    return true
+    return env_on
   end,
   opts = {
     window = {
